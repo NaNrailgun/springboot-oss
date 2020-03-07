@@ -32,7 +32,7 @@ public class UpdateController {
                 }
             }
         }
-
+        System.out.println("!!!");
         return ResultVo.builder().status_code(1).message("文件格式错误").build();
     }
 }
