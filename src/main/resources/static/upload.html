@@ -68,23 +68,26 @@
             </div>
         </div>
         <div>
-            <form>
-                <input type="file"><br>
-                <button type="submit" onclick="upload_image">提交</button>
-            </form>
+            <input type="file" @change="onchange"><br>
+            <button @click="upload_image">提交</button>
         </div>
     </div>
 </div>
 </body>
 <script>
+    var file;
     var app = new Vue({
         el: '#app',
         data: {
-            message: 'Hello Vue!'
+            //upload_image:''
         },
         methods:{
             upload_image:function(){
+                console.log(this.file);
                 console.log("提交")
+            },
+            onchange:function(event){
+                this.file=event;
             }
         }
     })
