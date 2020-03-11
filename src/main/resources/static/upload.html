@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<style>
+    *{
+        margin: 0px;
+    }
+    .header{
+        float: left;
+        height: 100px;
+        width: 100%;
+        background-color: black;
+    }
+    .myname{
+        float: left;
+        height: 100px;
+        width: 280px;
+        text-align: center;
+        /* border: 1px solid wheat; */
+    }
+    .myname_text{
+        color: white;
+        font-size: 30px;
+        line-height: 100px;
+        width: 100%;
+        float: left;
+        font-weight: 1000;
+    }
+    .title1{
+        float: right;
+        height: 100px;
+        /* border: 1px solid wheat; */
+        width: 150px;
+        text-align: center;
+        font-weight: bolder;
+    }
+    .title1_text{
+        color: white;
+        line-height: 100px;
+        font-size: 25px;
+    }
+
+</style>
+<body>
+<div id="app">
+    <div>
+        <div class="header">
+            <div class="myname">
+                <div class="myname_text">
+                    <a>NaNRailgun.oss</a>
+                </div>
+            </div>
+            <div class="title1">
+                <div class="title1_text">
+                    <a>查看图库</a>
+                </div>
+            </div>
+            <div class="title1">
+                <div class="title1_text">
+                    <a>上传图片</a>
+                </div>
+            </div>
+        </div>
+        <div>
+            <form>
+                <input type="file"><br>
+                <button type="submit" onclick="upload_image">提交</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello Vue!'
+        },
+        methods:{
+            upload_image:function(){
+                console.log("提交")
+            }
+        }
+    })
+</script>
+</html>

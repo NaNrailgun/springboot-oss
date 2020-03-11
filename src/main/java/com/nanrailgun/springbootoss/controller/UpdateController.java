@@ -1,20 +1,15 @@
 package com.nanrailgun.springbootoss.controller;
 
 import com.nanrailgun.springbootoss.vo.ResultVo;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@Controller
+@RestController
 public class UpdateController {
 
-    @GetMapping("/update")
-    public String returnUpdate(){
-        return "update";
-    }
 
     @PostMapping("/image")
     @ResponseBody
