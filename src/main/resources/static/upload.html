@@ -83,11 +83,28 @@
         },
         methods:{
             upload_image:function(){
-                console.log(this.file);
-                console.log("提交")
+                console.log("upload"+this.file)
+                let param=new FormData()
+                param.append("image",this.file)
+
+                axios.post("/image",param).then(
+                    response=>{
+                    //console.log(response)
+                    if(response.data.status_code==0){
+                    alert(response.data.message)
+                }
+            else{
+                    alert(response.data.message)
+                }
+            }
+            ).catch(
+                    error=>{
+                    console.log(error)
+                }
+            )
             },
             onchange:function(event){
-                this.file=event;
+                this.file=event.target.files[0];
             }
         }
     })

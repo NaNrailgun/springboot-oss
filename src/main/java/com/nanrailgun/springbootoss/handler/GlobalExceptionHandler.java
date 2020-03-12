@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MultipartException.class)
     public ResultVo SizeLimitExceededExceptionHandler(Exception e){
-        return ResultVo.builder().status_code(0).message("上传失败 文件过大").build();
+        return ResultVo.builder().status_code(1).message("上传失败 文件过大").build();
     }
 
 }
