@@ -19,7 +19,7 @@ import java.util.List;
 import static com.nanrailgun.springbootoss.config.QiNiuConfig.*;
 
 @Service
-public class UploadService {
+public class OssService {
 
     private static final String upToken;
 
@@ -113,6 +113,22 @@ public class UploadService {
             }
         }
         return true;
+    }
+
+    /**
+     * 获取key列表
+     * @return
+     */
+    public List<String> getKeyList(){
+        List<String> keyList=new ArrayList<>();
+
+        List<FileInfo[]> imageList = getImageList();
+        for (FileInfo[] fileInfos : imageList) {
+            for (FileInfo info : fileInfos) {
+                keyList.add(info.key);
+            }
+        }
+        return keyList;
     }
 
 

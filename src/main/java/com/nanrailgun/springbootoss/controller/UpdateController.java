@@ -1,6 +1,6 @@
 package com.nanrailgun.springbootoss.controller;
 
-import com.nanrailgun.springbootoss.service.UploadService;
+import com.nanrailgun.springbootoss.service.OssService;
 import com.nanrailgun.springbootoss.vo.ResultVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +15,7 @@ import java.io.IOException;
 public class UpdateController {
 
     @Autowired
-    private UploadService service;
+    private OssService service;
 
 
     @PostMapping("/image")
