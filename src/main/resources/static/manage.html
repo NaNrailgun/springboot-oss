@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Page</title>
+    <title>Manage Page</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- <script src="dist/clipboard.min.js"></script> -->
+<!--    <script src="vue.min.js"></script>-->
+<!--    <script src="vue-clipboard2.js"></script>-->
 </head>
 <style>
     a{TEXT-DECORATION:none}
@@ -46,6 +49,10 @@
         line-height: 100px;
         font-size: 25px;
     }
+    .my_images{
+        float: left;
+        padding: 20px;
+    }
 
 </style>
 <body>
@@ -68,45 +75,41 @@
                 </div>
             </div>
         </div>
-        <div>
-            <input type="file" @change="onchange"><br>
-            <button @click="upload_image">提交</button>
+        <div v-for="i in images" class="my_images">
+            <div>
+                <img :src="i.src" style="width: 200px; height: 200px;"></img:src>
+                <input type="text" readonly  v-model="i.src"/>
+            </div>
         </div>
+        <!--<li v-for="item in images.src" class="my_images">
+            <div>
+                <img :src="images.src[item]" style="width: 200px; height: 200px;"></img:src>
+                <input type="text" readonly  v-model="images.src[item]"/>
+            </div>
+        </li>-->
     </div>
 </div>
 </body>
 <script>
-    var file;
-    var app = new Vue({
-        el: '#app',
-        data: {
-            //upload_image:''
+    axios.get("/keys").then(
+        response=>{
+        app.$data.images=response.data.data
+        //console.log(app.$data.images)
+        //console.log(app.$data.images.src[0])
+    },
+        error=>{
+        alert("出错了")
+    }
+    )
+
+    var app=new Vue({
+        el : '#app',
+        data:{
+            images:[
+            ]
         },
         methods:{
-            upload_image:function(){
-                console.log("upload"+this.file)
-                let param=new FormData()
-                param.append("image",this.file)
 
-                axios.post("/image",param).then(
-                    response=>{
-                    //console.log(response)
-                    if(response.data.status_code==0){
-                    alert(response.data.message)
-                }
-            else{
-                    alert(response.data.message)
-                }
-            }
-            ).catch(
-                    error=>{
-                    console.log(error)
-                }
-            )
-            },
-            onchange:function(event){
-                this.file=event.target.files[0];
-            }
         }
     })
 </script>

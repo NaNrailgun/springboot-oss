@@ -14,7 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.nanrailgun.springbootoss.config.QiNiuConfig.*;
 
@@ -116,19 +118,22 @@ public class OssService {
     }
 
     /**
-     * 获取key列表
+     * 获取key
      * @return
      */
-    public List<String> getKeyList(){
-        List<String> keyList=new ArrayList<>();
+    public List<Map<String,String>> getKeyMap(){
+        List<Map<String,String>> keys=new ArrayList<>();
+        String url="http://q76ujmt72.bkt.clouddn.com/";
 
         List<FileInfo[]> imageList = getImageList();
         for (FileInfo[] fileInfos : imageList) {
             for (FileInfo info : fileInfos) {
-                keyList.add(info.key);
+                Map<String,String> keyMap=new HashMap<>();
+                keyMap.put("src",url+info.key);
+                keys.add(keyMap);
             }
         }
-        return keyList;
+        return keys;
     }
 
 
