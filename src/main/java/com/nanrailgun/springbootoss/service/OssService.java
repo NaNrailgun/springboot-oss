@@ -7,6 +7,7 @@ import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
+import com.qiniu.storage.model.BatchStatus;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Auth;
 import org.springframework.stereotype.Service;
@@ -130,11 +131,59 @@ public class OssService {
             for (FileInfo info : fileInfos) {
                 Map<String,String> keyMap=new HashMap<>();
                 keyMap.put("src",url+info.key);
+                keyMap.put("key",info.key);
                 keys.add(keyMap);
             }
         }
         return keys;
     }
 
+
+    /**
+     * 删除
+     * @param image_name
+     * @return
+     */
+    public boolean deleteKeys(String image_name){
+        //构造一个带指定 Region 对象的配置类
+        Configuration cfg = new Configuration(Zone.autoZone());
+        //...其他参数参考类注释
+
+        String accessKey = "niBP4srpbhIhMZ8LOci0qxBfeFQneSLG__IDwfy-";
+        String secretKey = "8nC1KwJ-UBY7KAdp3C09QaI0FZC4zLKB7g_gENRB";
+
+        String bucket = "nanrailguntest1";
+
+        Auth auth = Auth.create(accessKey, secretKey);
+        BucketManager bucketManager = new BucketManager(auth, cfg);
+
+        try {
+            //单次批量请求的文件数量不得超过1000
+            String[] keyList = new String[]{
+                    image_name
+            };
+            BucketManager.BatchOperations batchOperations = new BucketManager.BatchOperations();
+            batchOperations.addDeleteOp(bucket, keyList);
+            Response response = bucketManager.batch(batchOperations);
+            BatchStatus[] batchStatusList = response.jsonToObject(BatchStatus[].class);
+
+            for (int i = 0; i < keyList.length; i++) {
+                BatchStatus status = batchStatusList[i];
+                String key = keyList[i];
+                System.out.print(key + "\t");
+                if (status.code == 200) {
+                    //System.out.println("delete success");
+                    return true;
+                } else {
+                    //System.out.println(status.data.error);
+                    return false;
+                }
+            }
+        } catch (QiniuException ex) {
+            System.err.println(ex.response.toString());
+            return false;
+        }
+        return false;
+    }
 
 }

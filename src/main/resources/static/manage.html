@@ -7,8 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <!-- <script src="dist/clipboard.min.js"></script> -->
-<!--    <script src="vue.min.js"></script>-->
-<!--    <script src="vue-clipboard2.js"></script>-->
+    <!--    <script src="vue.min.js"></script>-->
+    <!--    <script src="vue-clipboard2.js"></script>-->
 </head>
 <style>
     a{TEXT-DECORATION:none}
@@ -75,18 +75,13 @@
                 </div>
             </div>
         </div>
-        <div v-for="i in images" class="my_images">
+        <div v-for="(i,index) in images" class="my_images">
             <div>
                 <img :src="i.src" style="width: 200px; height: 200px;"></img:src>
                 <input type="text" readonly  v-model="i.src"/>
+                <button type="button" @click="deleteImage(index)">删除</button>
             </div>
         </div>
-        <!--<li v-for="item in images.src" class="my_images">
-            <div>
-                <img :src="images.src[item]" style="width: 200px; height: 200px;"></img:src>
-                <input type="text" readonly  v-model="images.src[item]"/>
-            </div>
-        </li>-->
     </div>
 </div>
 </body>
@@ -109,7 +104,22 @@
             ]
         },
         methods:{
-
+            deleteImage:function(index){
+                let image_name=this.images[index].key
+                Vue.delete(this.images,index);
+                axios.delete("/keys"+"?image_name="+image_name).then(
+                    response=>{
+                    if(response.data.status_code==1){
+                    alert(response.data.message)
+                    window.location.href="/manage.html"
+                }
+            },
+                error=>{
+                    alert(response.data.message)
+                    window.location.href="/manage.html"
+                }
+            )
+            }
         }
     })
 </script>
