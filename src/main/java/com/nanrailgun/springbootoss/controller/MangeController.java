@@ -21,6 +21,10 @@ public class MangeController {
 
     @DeleteMapping("/keys")
     public ResultVo deleteKeys(@RequestParam("image_name") String key){
+        //判空
+        if (key==null){
+            return ResultVo.builder().status_code(1).message("key值为空").build();
+        }
         if (service.deleteKeys(key)){
             return ResultVo.builder().status_code(0).message("删除成功").build();
         }

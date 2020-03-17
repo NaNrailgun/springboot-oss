@@ -2,14 +2,12 @@ package com.nanrailgun.springbootoss.service;
 
 import com.nanrailgun.springbootoss.config.QiNiuConfig;
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
-import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.BatchStatus;
 import com.qiniu.storage.model.FileInfo;
-import com.qiniu.util.Auth;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,20 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nanrailgun.springbootoss.config.QiNiuConfig.*;
-
 @Service
 public class OssService {
 
-    private static final String upToken;
-
-    private static final UploadManager uploadManager=QiNiuConfig.getUploadManager();
-
-
-    static {
-        Auth auth = Auth.create(accessKey, secretKey);
-        upToken = auth.uploadToken(bucket);
-    }
+    //注入七牛云配置类
+    @Autowired
+    private QiNiuConfig qiNiuConfig;
 
 
     /**
@@ -41,24 +31,28 @@ public class OssService {
      * @throws IOException
      */
     public boolean upload(MultipartFile multipartFile) throws IOException {
+        //判断文件是否存在
         byte[] bytes=multipartFile.getBytes();
         String name=multipartFile.getOriginalFilename();
         int i = name.lastIndexOf(".");
         String key=name.substring(0,i);
-
         if (!isImageExist(key)) return false;
+
+        //创建上传manager && upToken
+        UploadManager uploadManager = new UploadManager(qiNiuConfig.cfg);
+        String upToken=qiNiuConfig.auth.uploadToken(qiNiuConfig.bucket);
 
 
         try {
-            Response response = uploadManager.put(bytes, key, upToken);
-            System.out.println(response.bodyString());
+            //上传
+            uploadManager.put(bytes, key, upToken);
         } catch (QiniuException ex) {
             Response r = ex.response;
             System.err.println(r.toString());
             try {
                 System.err.println(r.bodyString());
             } catch (QiniuException ex2) {
-                System.out.println("QiNiu_ex2");
+                System.err.println("QiNiu_upload_ex2");
             }
         }
         return true;
@@ -68,19 +62,9 @@ public class OssService {
      * 获取文件列表
      * @return
      */
-    public List<FileInfo[]> getImageList(){
-
-        //构造一个带指定 Region 对象的配置类
-        Configuration cfg = new Configuration(Zone.zone0());
-        //...其他参数参考类注释
-
-        String accessKey = "niBP4srpbhIhMZ8LOci0qxBfeFQneSLG__IDwfy-";
-        String secretKey = "8nC1KwJ-UBY7KAdp3C09QaI0FZC4zLKB7g_gENRB";
-
-        String bucket = "nanrailguntest1";
-
-        Auth auth = Auth.create(accessKey, secretKey);
-        BucketManager bucketManager = new BucketManager(auth, cfg);
+    private List<FileInfo[]> getImageList(){
+        //创建bucketManage
+        BucketManager bucketManager = new BucketManager(qiNiuConfig.auth, qiNiuConfig.cfg);
 
         //文件名前缀
         String prefix = "";
@@ -92,7 +76,7 @@ public class OssService {
 
         List<FileInfo[]> list=new ArrayList<>();
         //列举空间文件列表
-        BucketManager.FileListIterator fileListIterator = bucketManager.createFileListIterator(bucket, prefix, limit, delimiter);
+        BucketManager.FileListIterator fileListIterator = bucketManager.createFileListIterator(qiNiuConfig.bucket, prefix, limit, delimiter);
         while (fileListIterator.hasNext()) {
             //处理获取的file list结果
             FileInfo[] items = fileListIterator.next();
@@ -106,7 +90,7 @@ public class OssService {
      * @param key
      * @return
      */
-    public boolean isImageExist(String key){
+    private boolean isImageExist(String key){
 
         List<FileInfo[]> list=getImageList();
         for (FileInfo[] fileInfos : list) {
@@ -119,12 +103,12 @@ public class OssService {
     }
 
     /**
-     * 获取key
-     * @return
+     * 获取图片列表
+     * @return 图片url和key
      */
     public List<Map<String,String>> getKeyMap(){
         List<Map<String,String>> keys=new ArrayList<>();
-        String url="http://q76ujmt72.bkt.clouddn.com/";
+        String url=qiNiuConfig.url;
 
         List<FileInfo[]> imageList = getImageList();
         for (FileInfo[] fileInfos : imageList) {
@@ -145,17 +129,8 @@ public class OssService {
      * @return
      */
     public boolean deleteKeys(String image_name){
-        //构造一个带指定 Region 对象的配置类
-        Configuration cfg = new Configuration(Zone.autoZone());
-        //...其他参数参考类注释
-
-        String accessKey = "niBP4srpbhIhMZ8LOci0qxBfeFQneSLG__IDwfy-";
-        String secretKey = "8nC1KwJ-UBY7KAdp3C09QaI0FZC4zLKB7g_gENRB";
-
-        String bucket = "nanrailguntest1";
-
-        Auth auth = Auth.create(accessKey, secretKey);
-        BucketManager bucketManager = new BucketManager(auth, cfg);
+        //获取bucketManage
+        BucketManager bucketManager = new BucketManager(qiNiuConfig.auth, qiNiuConfig.cfg);
 
         try {
             //单次批量请求的文件数量不得超过1000
@@ -163,21 +138,15 @@ public class OssService {
                     image_name
             };
             BucketManager.BatchOperations batchOperations = new BucketManager.BatchOperations();
-            batchOperations.addDeleteOp(bucket, keyList);
+            batchOperations.addDeleteOp(qiNiuConfig.bucket, keyList);
             Response response = bucketManager.batch(batchOperations);
+
+            //获取返回json对象
             BatchStatus[] batchStatusList = response.jsonToObject(BatchStatus[].class);
 
             for (int i = 0; i < keyList.length; i++) {
                 BatchStatus status = batchStatusList[i];
-                String key = keyList[i];
-                System.out.print(key + "\t");
-                if (status.code == 200) {
-                    //System.out.println("delete success");
-                    return true;
-                } else {
-                    //System.out.println(status.data.error);
-                    return false;
-                }
+                return status.code == 200;
             }
         } catch (QiniuException ex) {
             System.err.println(ex.response.toString());
